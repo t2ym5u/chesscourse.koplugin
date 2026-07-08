@@ -22,7 +22,7 @@ local TextWidget      = require("ui/widget/textwidget")
 local UIManager       = require("ui/uimanager")
 local VerticalGroup   = require("ui/widget/verticalgroup")
 local VerticalSpan    = require("ui/widget/verticalspan")
-local _               = require("gettext")
+local _               = require("i18n")
 
 local MenuHelper       = require("menu_helper")
 local ScreenBase       = require("screen_base")
@@ -201,20 +201,19 @@ function CoursEchecsScreen:buildLayout()
             right_panel,
         }
     else
-        self.layout = VerticalGroup:new{
+        local combined_header = VerticalGroup:new{
             align = "center",
-            VerticalSpan:new{ width = Size.span.vertical_large },
             header,
             VerticalSpan:new{ width = Size.span.vertical_large },
             nav_buttons,
-            VerticalSpan:new{ width = Size.span.vertical_large },
+        }
+        local content = VerticalGroup:new{
+            align = "center",
             board_frame,
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.status_text,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            action_buttons,
-            VerticalSpan:new{ width = Size.span.vertical_large },
         }
+        self:buildPortraitLayout(combined_header, content, action_buttons)
     end
 
     self[1] = self.layout
