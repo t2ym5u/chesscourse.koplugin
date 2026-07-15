@@ -1,5 +1,5 @@
 -- ---------------------------------------------------------------------------
--- lessons.lua — agrège les 30 leçons depuis les fichiers par catégorie.
+-- lessons.lua — agrège les leçons depuis les fichiers par catégorie.
 -- Ajouter une catégorie : créer lessons_<cat>.lua et l'ajouter à la liste.
 -- ---------------------------------------------------------------------------
 
@@ -19,6 +19,7 @@ for _, src in ipairs({
     "lessons_mat3",
     "lessons_tactique",
     "lessons_finale",
+    "lessons_ouverture",
 }) do
     for _, lesson in ipairs(lload(src)) do
         all[#all + 1] = lesson

@@ -30,29 +30,29 @@ return {
         hint="La pièce clouée sur le roi ne peut pas fuir — capturez-la !",
     },
 
-    -- 18. Rook skewer : Rb6+ skewers Kb8, wins Rb2
-    -- FEN: Kb8 Rb2 / Rb5 Ke1
-    -- Rb5(r4c2)→b6(r3c2) : échec Kb8(r1c2) via col b ; Kb8 s'écarte → Rxb2
+    -- 18. Rook skewer : Rd1-b1+ checks along the b-file; the black rook at
+    -- b7 is behind its own king and cannot block or capture (blocked by Kb5).
+    -- King must step off the b-file, exposing Rb7 to Rxb7 next move.
+    -- FEN: Kb5 Rb7 / Ke4 Rd1
     {
         id=18, category="tactique",
         title="Enfilade de tour",
         desc="Les blancs jouent et gagnent la tour adverse grâce à une enfilade.",
-        fen="1k6/8/8/1R6/8/8/1r6/4K3 w - - 0 1",
-        solution={ {fr=4,fc=2,tr=3,tc=2} },
-        hint="Donnez échec au roi pour qu'il s'écarte et expose la tour derrière lui.",
+        fen="8/1r6/8/1k6/4K3/8/8/3R4 w - - 0 1",
+        solution={ {fr=8,fc=4,tr=8,tc=2} },
+        hint="Donnez échec au roi sur la colonne b — sa propre tour, bloquée derrière lui, ne peut pas aider.",
     },
 
-    -- 19. Discovered attack : Ne5→f7+ reveals Re1 attacking Qe7
-    -- FEN: Ke8 Qe7 / Ne5 Re1 Ke2
-    -- Ne5(r4c5)→f7(r2c6) : échappe la colonne e → Re1 découverte sur Ke8 au travers de Qe7
-    -- Ke8 doit parer l'échec → Re1×e7 gagne la dame
+    -- 19. Discovered check + wins the queen : Ne5xd7+ (knight captures the
+    -- queen and simultaneously unmasks Re1's check along the open e-file)
+    -- FEN: Ke8 Qd7 / Ne5 Re1 Kg2
     {
         id=19, category="tactique",
         title="Attaque à la découverte",
         desc="Les blancs jouent et gagnent la dame adverse par une attaque à la découverte.",
-        fen="4k3/4q3/8/4N3/8/8/4K3/4R3 w - - 0 1",
-        solution={ {fr=4,fc=5,tr=2,tc=6} },
-        hint="Bougez le cavalier — la tour attaque la dame à la découverte et donne échec.",
+        fen="4k3/3q4/8/4N3/8/8/6K1/4R3 w - - 0 1",
+        solution={ {fr=4,fc=5,tr=2,tc=4} },
+        hint="Le cavalier prend la dame tout en découvrant l'échec de la tour sur la colonne e.",
     },
 
     -- 20. Knight fork on king and queen : Nf6+ forks Ke8 and Qd7
@@ -91,15 +91,60 @@ return {
         hint="Le cavalier est cloué sur la colonne d — capturez-le !",
     },
 
-    -- 23. Skewer on f-file : Rf6+ skewers Kf8, wins Rf2
-    -- FEN: Kf8 Rf2 / Rf5 Ke1
-    -- Rf5(r4c6)→f6(r3c6) : échec Kf8(r1c6) col f ; Kf8 s'écarte → Rxf2
+    -- 23. Skewer on f-file : Rh1-f1+ checks along the f-file; the black rook
+    -- at f7 is behind its own king (Kf5) and cannot block or capture.
+    -- King must step off the f-file, exposing Rf7 to Rxf7 next move.
+    -- FEN: Kf5 Rf7 / Kg2 Rh1
     {
         id=23, category="tactique",
         title="Enfilade sur colonne f",
         desc="Les blancs attaquent le roi et gagnent la tour sur la même colonne.",
-        fen="5k2/8/8/5R2/8/8/5r2/4K3 w - - 0 1",
-        solution={ {fr=4,fc=6,tr=3,tc=6} },
-        hint="Donnez échec au roi pour l'obliger à s'écarter et capturez la tour.",
+        fen="8/5r2/8/5k2/8/8/6K1/7R w - - 0 1",
+        solution={ {fr=8,fc=8,tr=8,tc=6} },
+        hint="Donnez échec au roi sur la colonne f — sa propre tour, bloquée derrière lui, ne peut pas aider.",
+    },
+
+    -- 48. Knight captures the queen with check (removes the defender of e8)
+    -- FEN: Kg8 pf7 pg7 ph7 Qe7 / Nc6 Re1 Ka1
+    {
+        id=48, category="tactique",
+        title="Cavalier : gain de la dame avec échec",
+        desc="Les blancs jouent et gagnent la dame adverse.",
+        fen="6k1/4qppp/2N5/8/8/8/8/K3R3 w - - 0 1",
+        solution={ {fr=3,fc=3,tr=2,tc=5} },
+        hint="Le cavalier peut prendre la dame tout en donnant échec.",
+    },
+
+    -- 49. Queen fork : Qc4+ forks Ke6 (file) and Rc3 (file c)
+    -- FEN: Ke6 Rc3 / Qh4 Ke1
+    {
+        id=49, category="tactique",
+        title="Fourchette de la dame (variante)",
+        desc="Les blancs jouent et gagnent la tour grâce à une fourchette de la dame.",
+        fen="8/8/4k3/8/7Q/2r5/8/4K3 w - - 0 1",
+        solution={ {fr=5,fc=8,tr=5,tc=3} },
+        hint="La dame va en c4 — elle donne échec et attaque la tour sur la colonne c.",
+    },
+
+    -- 50. Discovered check via bishop capture : Bxd6+ wins the rook and unmasks Re1
+    -- FEN: Ke8 Rd6 / Be5 Re1 Kf1
+    {
+        id=50, category="tactique",
+        title="Attaque à la découverte (fou)",
+        desc="Les blancs jouent et gagnent la tour adverse par une attaque à la découverte.",
+        fen="4k3/8/3r4/4B3/8/8/8/4RK2 w - - 0 1",
+        solution={ {fr=4,fc=5,tr=3,tc=4} },
+        hint="Le fou prend la tour tout en découvrant l'échec de la tour blanche sur la colonne e.",
+    },
+
+    -- 51. Bishop skewer on the a4-e8 diagonal : Ba4+ skewers Kc6, wins Re8
+    -- FEN: Kc6 Re8 / Bd1 Kh1
+    {
+        id=51, category="tactique",
+        title="Enfilade du fou",
+        desc="Les blancs jouent et gagnent la tour adverse grâce à une enfilade du fou.",
+        fen="4r3/8/2k5/8/8/8/8/3B3K w - - 0 1",
+        solution={ {fr=8,fc=4,tr=5,tc=1} },
+        hint="Le fou donne échec sur la diagonale — le roi s'écarte et expose la tour derrière lui.",
     },
 }
