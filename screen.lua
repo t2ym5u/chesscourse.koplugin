@@ -13,12 +13,10 @@ end
 
 local ButtonTable     = require("ui/widget/buttontable")
 local Device          = require("device")
-local Font            = require("ui/font")
 local FrameContainer  = require("ui/widget/container/framecontainer")
 local HorizontalGroup = require("ui/widget/horizontalgroup")
 local HorizontalSpan  = require("ui/widget/horizontalspan")
 local Size            = require("ui/size")
-local TextWidget      = require("ui/widget/textwidget")
 local UIManager       = require("ui/uimanager")
 local VerticalGroup   = require("ui/widget/verticalgroup")
 local VerticalSpan    = require("ui/widget/verticalspan")
@@ -149,22 +147,22 @@ function CoursEchecsScreen:buildLayout()
     local title = lesson and lesson.title or ""
     local header_text = string.format("%d/%d · %s · %s",
         self.lesson_idx, #lessons, cat, title)
-    local header = TextWidget:new{
-        text = header_text,
-        face = Font:getFace("smallinfofont"),
-    }
+
+    local title_bar = self:buildTitleBar(header_text, function()
+        return {
+            { text = _("Catégories"), callback = function() self:openCategoryMenu() end },
+            { text = _("Retourner"),  callback = function() self:onFlipBoard()      end },
+            self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
+        }
+    end)
 
     -- Navigation row
     local nav_buttons = ButtonTable:new{
         width                 = button_width,
         shrink_unneeded_width = true,
         buttons = {{
-            { text = _("Préc"),        callback = function() self:onPrev()           end },
-            { text = _("Suivant"),     callback = function() self:onNext()           end },
-            { text = _("Catégories"), callback = function() self:openCategoryMenu() end },
-            { text = _("Retourner"),  callback = function() self:onFlipBoard()      end },
-            self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
-            self:makeCloseButtonConfig(),
+            { text = _("Préc"),    callback = function() self:onPrev() end },
+            { text = _("Suivant"), callback = function() self:onNext() end },
         }},
     }
 
@@ -186,7 +184,7 @@ function CoursEchecsScreen:buildLayout()
     if is_landscape then
         local right_panel = VerticalGroup:new{
             align = "center",
-            header,
+            title_bar,
             VerticalSpan:new{ width = Size.span.vertical_large },
             nav_buttons,
             VerticalSpan:new{ width = Size.span.vertical_large },
@@ -201,11 +199,11 @@ function CoursEchecsScreen:buildLayout()
             right_panel,
         }
     else
-        local combined_header = VerticalGroup:new{
+        local footer = VerticalGroup:new{
             align = "center",
-            header,
-            VerticalSpan:new{ width = Size.span.vertical_large },
             nav_buttons,
+            VerticalSpan:new{ width = Size.span.vertical_large },
+            action_buttons,
         }
         local content = VerticalGroup:new{
             align = "center",
@@ -213,7 +211,7 @@ function CoursEchecsScreen:buildLayout()
             VerticalSpan:new{ width = Size.span.vertical_large },
             self.status_text,
         }
-        self:buildPortraitLayout(combined_header, content, action_buttons)
+        self:buildPortraitLayout(title_bar, content, footer)
     end
 
     self[1] = self.layout
