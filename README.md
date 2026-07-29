@@ -1,4 +1,4 @@
-# coursdechecs.koplugin
+# chesscourse.koplugin
 
 A Chess Lessons plugin for [KOReader](https://github.com/koreader/koreader).
 
@@ -19,7 +19,7 @@ Work through guided chess exercises. Each lesson presents a board position and a
 
 ## Installation
 
-1. Download `coursdechecs.koplugin.zip` from the [latest release](../../releases/latest).
+1. Download `chesscourse.koplugin.zip` from the [latest release](../../releases/latest).
 2. Extract into the `plugins/` folder of your KOReader data directory.
 3. Restart KOReader.
 4. Open the menu → **Tools** → **Chess Lessons**.
