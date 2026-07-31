@@ -15,7 +15,7 @@ local ChessPieces    = require("chess_pieces")
 
 local C_LIGHT_SQ = Blitbuffer.COLOR_GRAY_E
 local C_DARK_SQ  = Blitbuffer.COLOR_GRAY_9
-local C_SEL      = Blitbuffer.COLOR_GRAY_C
+local C_SEL      = Blitbuffer.COLOR_LIGHT_GRAY
 local C_LASTMOV  = Blitbuffer.COLOR_GRAY_B
 local C_DOT      = Blitbuffer.COLOR_GRAY_3
 local C_LINE     = Blitbuffer.COLOR_BLACK
