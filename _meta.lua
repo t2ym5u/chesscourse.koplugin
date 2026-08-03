@@ -1,6 +1,6 @@
 local _ = require("gettext")
 return {
-    version     = "1.2.12",
+    version     = "1.2.13",
     fullname    = _("Cours d'échecs"),
     description = _("Puzzles et leçons d'échecs"),
 }
