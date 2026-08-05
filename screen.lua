@@ -31,12 +31,12 @@ local DeviceScreen = Device.screen
 
 -- Category display labels (keep in sync with lessons.lua)
 local CAT_LABEL = {
-    mat1     = _("Mat en 1"),
-    mat2     = _("Mat en 2"),
-    mat3     = _("Mat en 3"),
-    tactique = _("Tactique"),
-    finale   = _("Finale"),
-    ouverture = _("Ouverture"),
+    mat1     = _("Mate in 1"),
+    mat2     = _("Mate in 2"),
+    mat3     = _("Mate in 3"),
+    tactique = _("Tactics"),
+    finale   = _("Endgame"),
+    ouverture = _("Opening"),
 }
 
 -- ---------------------------------------------------------------------------
@@ -150,8 +150,8 @@ function CoursEchecsScreen:buildLayout()
 
     local title_bar = self:buildTitleBar(header_text, function()
         return {
-            { text = _("Catégories"), callback = function() self:openCategoryMenu() end },
-            { text = _("Retourner"),  callback = function() self:onFlipBoard()      end },
+            { text = _("Categories"), callback = function() self:openCategoryMenu() end },
+            { text = _("Flip"),  callback = function() self:onFlipBoard()      end },
             self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
         }
     end)
@@ -161,8 +161,8 @@ function CoursEchecsScreen:buildLayout()
         width                 = button_width,
         shrink_unneeded_width = true,
         buttons = {{
-            { text = _("Préc"),    callback = function() self:onPrev() end },
-            { text = _("Suivant"), callback = function() self:onNext() end },
+            { text = _("Prev"),    callback = function() self:onPrev() end },
+            { text = _("Next"), callback = function() self:onNext() end },
         }},
     }
 
@@ -171,10 +171,10 @@ function CoursEchecsScreen:buildLayout()
         width                 = button_width,
         shrink_unneeded_width = true,
         buttons = {{
-            { text = _("Indice"),        callback = function() self:onHint()         end },
+            { text = _("Hint"),        callback = function() self:onHint()         end },
             { text = _("Solution"),      callback = function() self:onShowSolution() end },
-            { text = _("Réinitialiser"), callback = function() self:onReset()        end },
-            { text = _("Annuler"),       callback = function() self:onUndo()         end },
+            { text = _("Reset"), callback = function() self:onReset()        end },
+            { text = _("Undo"),       callback = function() self:onUndo()         end },
         }},
     }
 
@@ -309,7 +309,7 @@ function CoursEchecsScreen:openCategoryMenu()
 
     local current_cat = self.current_lesson and self.current_lesson.category
     MenuHelper.openPickerMenu{
-        title      = _("Choisir une catégorie"),
+        title      = _("Choose a category"),
         items      = items,
         current_id = current_cat,
         on_select  = function(cat_id)
@@ -372,7 +372,7 @@ function CoursEchecsScreen:onCellAction(r, c)
 
             if self.move_count >= #lesson.solution then
                 self.solved = true
-                self:updateStatus(_("Bravo ! Vous avez trouvé la solution."))
+                self:updateStatus(_("Well done! You found the solution."))
             elseif is_opponent_reply then
                 UIManager:scheduleIn(0.5, function()
                     self.board:makeMove(reply.fr, reply.fc, reply.tr, reply.tc)
@@ -383,13 +383,13 @@ function CoursEchecsScreen:onCellAction(r, c)
                     end
                     if self.move_count >= #lesson.solution then
                         self.solved = true
-                        self:updateStatus(_("Bravo ! Puzzle résolu."))
+                        self:updateStatus(_("Well done! Puzzle solved."))
                     else
-                        self:updateStatus(_("Bon coup ! Continuez..."))
+                        self:updateStatus(_("Good move! Keep going..."))
                     end
                 end)
             else
-                self:updateStatus(_("Bon coup ! Continuez..."))
+                self:updateStatus(_("Good move! Keep going..."))
             end
         else
             self.board:undoMove()
@@ -397,7 +397,7 @@ function CoursEchecsScreen:onCellAction(r, c)
                 self.board_widget.last_move = self.board.last_move
                 self.board_widget:refresh()
             end
-            self:updateStatus(_("Ce n'est pas la bonne solution. Essayez encore."))
+            self:updateStatus(_("That's not the right solution. Try again."))
         end
     elseif result == "select" or result == "deselect" then
         self:updateStatus()
@@ -422,7 +422,7 @@ end
 function CoursEchecsScreen:onHint()
     local lesson = self.current_lesson
     if lesson and lesson.hint then
-        self:updateStatus(_("Indice : ") .. lesson.hint)
+        self:updateStatus(_("Hint: ") .. lesson.hint)
     end
 end
 
@@ -439,7 +439,7 @@ function CoursEchecsScreen:onShowSolution()
     local function playNext(idx)
         if idx > #lesson.solution then
             if self.board_widget then self.board_widget:refresh() end
-            self:updateStatus(_("Solution affichée. Appuyez sur Suivant pour continuer."))
+            self:updateStatus(_("Solution shown. Tap Next to continue."))
             return
         end
         local m = lesson.solution[idx]
@@ -469,23 +469,23 @@ function CoursEchecsScreen:updateStatus(msg)
     local status
 
     if self.solved then
-        status = _("Puzzle résolu ! Appuyez sur Suivant.")
+        status = _("Puzzle solved! Tap Next.")
     elseif board.status == "checkmate" then
-        local winner = (board.winner == "white") and _("Blancs") or _("Noirs")
-        status = winner .. " " .. _("gagnent par échec et mat !")
+        local winner = (board.winner == "white") and _("White") or _("Black")
+        status = winner .. " " .. _("wins by checkmate!")
     elseif board.status == "stalemate" then
-        status = _("Pat — partie nulle.")
+        status = _("Stalemate — draw.")
     elseif board.status == "check" then
-        local turn = (board.turn == "white") and _("Blancs") or _("Noirs")
-        status = turn .. " " .. _("sont en échec — continuez la solution.")
+        local turn = (board.turn == "white") and _("White") or _("Black")
+        status = turn .. " " .. _("are in check — continue the solution.")
     else
         if lesson then
             local cat = CAT_LABEL[lesson.category] or lesson.category
-            local side = (board.turn == "white") and _("Blancs jouent") or _("Noirs jouent")
+            local side = (board.turn == "white") and _("White to move") or _("Black to move")
             status = string.format("%d/%d · %s · %s", self.lesson_idx, #lessons, cat, side)
         else
-            local turn = (board.turn == "white") and _("Blancs") or _("Noirs")
-            status = turn .. " " .. _("jouent.")
+            local turn = (board.turn == "white") and _("White") or _("Black")
+            status = turn .. " " .. _("to move.")
         end
     end
     ScreenBase.updateStatus(self, status)
