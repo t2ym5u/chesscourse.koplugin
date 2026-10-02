@@ -6,6 +6,17 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.2.18] - 2026-10-02
+
+### Fixed
+- Dropped this plugin's `Hint` override. `package.loaded` is keyed by module
+  name alone, so every `require("i18n")` on the device resolves to one module
+  and the first plugin loaded wins it. Every plugin's `i18n_fr.lua` merges
+  into that one shared table, where plugins silently overwrite each other's
+  translations. This one rendered `Hint` as "Indice", overwriting game-
+  common's "Astuce" for the whole fleet because it happened to merge last. The
+  shared value now stands.
+
 ## [1.2.17] - 2026-10-01
 
 ### Fixed
