@@ -11,7 +11,6 @@ return {
     ["Flip"]                      = { fr = "Retourner", es = "Girar", de = "Drehen" },
     ["Prev"]                      = { fr = "Préc", es = "Ant.", de = "Zurück" },
     ["Next"]                      = { fr = "Suivant", es = "Siguiente", de = "Weiter" },
-    ["Hint"]                      = { fr = "Indice", es = "Pista", de = "Hinweis" },
     ["Solution"]                  = { fr = "Solution", es = "Solución", de = "Lösung" },
     ["Reset"]                     = { fr = "Réinitialiser", es = "Reiniciar", de = "Zurücksetzen" },
     ["Choose a category"]         = { fr = "Choisir une catégorie", es = "Elige una categoría", de = "Kategorie wählen" },
