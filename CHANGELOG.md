@@ -6,6 +6,27 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.3.0] - 2026-10-30
+
+### Changed
+- Redesigned play screen: the board fills the room the controls leave, and the
+  actions sit on a full-width two-row bar (Hint/Solution/Reset/Undo, then
+  Prev/Next). In landscape the title bar now spans the screen instead of being
+  squeezed into the side panel.
+- The title bar shows only the lesson's title; the index and category, already
+  on the status line, made it long enough to run into the close button.
+- The menu's category entry shows the current one, "Category: Tactics",
+  instead of "Categories".
+- The status line reads "3/40 · Tactics · White to move" and wraps in
+  landscape, where the category is left out to fit.
+
+### Fixed
+- Rank and file labels were drawn inside the corner squares, on top of the
+  pieces, and scaled by DPI twice. They now sit in their own margin left of
+  and below the board, file letters on one baseline.
+- The letters used for pieces on very small squares were scaled by DPI twice
+  and came out too large on high-DPI screens.
+
 ## [1.2.18] - 2026-10-02
 
 ### Fixed

@@ -11,8 +11,6 @@ local function lrequire(name)
     return package.loaded[key]
 end
 
-local ButtonTable     = require("ui/widget/buttontable")
-local Device          = require("device")
 local FrameContainer  = require("ui/widget/container/framecontainer")
 local HorizontalGroup = require("ui/widget/horizontalgroup")
 local HorizontalSpan  = require("ui/widget/horizontalspan")
@@ -21,13 +19,13 @@ local UIManager       = require("ui/uimanager")
 local VerticalGroup   = require("ui/widget/verticalgroup")
 local VerticalSpan    = require("ui/widget/verticalspan")
 local _               = require("i18n")
+local T               = require("ffi/util").template
 
 local MenuHelper       = require("menu_helper")
 local ScreenBase       = require("screen_base")
 local ChessBoard       = lrequire("board")
 local CoursBoardWidget = lrequire("board_widget")
 
-local DeviceScreen = Device.screen
 
 -- Category display labels (keep in sync with lessons.lua)
 local CAT_LABEL = {
@@ -113,105 +111,74 @@ end
 
 function CoursEchecsScreen:buildLayout()
     local board   = self.board
-    local lessons = lrequire("lessons")
     local lesson  = self.current_lesson
 
-    self.board_widget = CoursBoardWidget:new{
-        board        = board,
-        flipped      = self._flipped,
-        onCellAction = function(r, c) self:onCellAction(r, c) end,
-    }
-
     local is_landscape = self:isLandscape()
-    local sw = DeviceScreen:getWidth()
+    self._landscape    = is_landscape
 
-    local board_frame = FrameContainer:new{
-        padding = Size.padding.default,
-        margin  = Size.margin.default,
-        self.board_widget,
-    }
-
-    local board_frame_size = self.board_widget.size
-        + (Size.padding.default + Size.margin.default) * 2
-
-    local button_width
-    if is_landscape then
-        local right_w = sw - board_frame_size - Size.span.horizontal_default * 2
-        button_width  = math.max(right_w - Size.span.horizontal_default, 120)
-    else
-        button_width = math.floor(sw * 0.92)
-    end
-
-    -- Lesson header
-    local cat   = lesson and (CAT_LABEL[lesson.category] or lesson.category) or ""
-    local title = lesson and lesson.title or ""
-    local header_text = string.format("%d/%d · %s · %s",
-        self.lesson_idx, #lessons, cat, title)
+    -- Lesson header: just the puzzle's theme. Index and category are
+    -- already in the status line, so repeating them here only made the
+    -- title long enough to collide with the close button.
+    local header_text = lesson and lesson.title or _("Chess Course")
 
     local title_bar = self:buildTitleBar(header_text, function()
         return {
-            { text = _("Categories"), callback = function() self:openCategoryMenu() end },
+            { text = self:_categoryLabel(), callback = function() self:openCategoryMenu() end },
             { text = _("Flip"),  callback = function() self:onFlipBoard()      end },
             self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
         }
     end)
 
-    -- Navigation row
-    local nav_buttons = ButtonTable:new{
-        width                 = button_width,
-        shrink_unneeded_width = true,
-        buttons = {{
-            { text = _("Prev"),    callback = function() self:onPrev() end },
+    -- Actions on the first row, lesson navigation on the second.
+    local controls_w = self:getControlsWidth()
+    self.status_text:setMaxWidth(controls_w)
+    local action_buttons = self:buildActionBar({
+        {
+            { text = _("Hint"),     callback = function() self:onHint()         end },
+            { text = _("Solution"), callback = function() self:onShowSolution() end },
+            { text = _("Reset"),    callback = function() self:onReset()        end },
+            { text = _("Undo"),     callback = function() self:onUndo()         end },
+        },
+        {
+            { text = _("Prev"), callback = function() self:onPrev() end },
             { text = _("Next"), callback = function() self:onNext() end },
-        }},
-    }
-
-    -- Action row
-    local action_buttons = ButtonTable:new{
-        width                 = button_width,
-        shrink_unneeded_width = true,
-        buttons = {{
-            { text = _("Hint"),        callback = function() self:onHint()         end },
-            { text = _("Solution"),      callback = function() self:onShowSolution() end },
-            { text = _("Reset"), callback = function() self:onReset()        end },
-            { text = _("Undo"),       callback = function() self:onUndo()         end },
-        }},
-    }
-
-    self.nav_buttons    = nav_buttons
+        },
+    })
     self.action_buttons = action_buttons
+    local controls = VerticalGroup:new{
+        align = "center",
+        self.status_text,
+        VerticalSpan:new{ width = Size.span.vertical_large },
+        action_buttons,
+    }
+
+    local frame_pad = Size.padding.default
+    local frame_extra = 2 * (frame_pad + Size.border.window)
+    local budget_w, budget_h = self:getBoardBudget(title_bar, controls)
+    self.board_widget = CoursBoardWidget:new{
+        board        = board,
+        flipped      = self._flipped,
+        max_size     = math.min(budget_w, budget_h) - frame_extra,
+        onCellAction = function(r, c) self:onCellAction(r, c) end,
+    }
+
+    local board_frame = FrameContainer:new{
+        padding = frame_pad,
+        margin  = 0,
+        self.board_widget,
+    }
 
     if is_landscape then
-        local right_panel = VerticalGroup:new{
-            align = "center",
-            title_bar,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            nav_buttons,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            self.status_text,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            action_buttons,
-        }
-        self.layout = HorizontalGroup:new{
+        local content = HorizontalGroup:new{
             align = "center",
             board_frame,
-            HorizontalSpan:new{ width = Size.span.horizontal_default },
-            right_panel,
+            HorizontalSpan:new{ width = self:getGutter() },
+            controls,
         }
+        self:buildLandscapeLayout(title_bar, content)
     else
-        local footer = VerticalGroup:new{
-            align = "center",
-            nav_buttons,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            action_buttons,
-        }
-        local content = VerticalGroup:new{
-            align = "center",
-            board_frame,
-            VerticalSpan:new{ width = Size.span.vertical_large },
-            self.status_text,
-        }
-        self:buildPortraitLayout(title_bar, content, footer)
+        self:buildPortraitLayout(title_bar, board_frame,
+            VerticalGroup:new{ align = "center", controls, VerticalSpan:new{ width = self:getGutter() } })
     end
 
     self[1] = self.layout
@@ -275,6 +242,12 @@ end
 -- Category selector
 -- ---------------------------------------------------------------------------
 
+function CoursEchecsScreen:_categoryLabel()
+    local cat = self.current_lesson and self.current_lesson.category
+    if not cat then return _("Categories") end
+    return T(_("Category: %1"), CAT_LABEL[cat] or cat)
+end
+
 function CoursEchecsScreen:openCategoryMenu()
     local lessons = lrequire("lessons")
 
@@ -309,7 +282,7 @@ function CoursEchecsScreen:openCategoryMenu()
 
     local current_cat = self.current_lesson and self.current_lesson.category
     MenuHelper.openPickerMenu{
-        title      = _("Choose a category"),
+        title      = _("Category"),
         items      = items,
         current_id = current_cat,
         on_select  = function(cat_id)
@@ -480,9 +453,11 @@ function CoursEchecsScreen:updateStatus(msg)
         status = turn .. " " .. _("are in check — continue the solution.")
     else
         if lesson then
-            local cat = CAT_LABEL[lesson.category] or lesson.category
             local side = (board.turn == "white") and _("White to move") or _("Black to move")
-            status = string.format("%d/%d · %s · %s", self.lesson_idx, #lessons, cat, side)
+            -- The landscape side panel is too narrow for the category too;
+            -- it stays reachable via the Categories menu.
+            local cat = not self._landscape and (CAT_LABEL[lesson.category] or lesson.category) or nil
+            status = self:joinStatus(T("%1/%2", self.lesson_idx, #lessons), cat, side)
         else
             local turn = (board.turn == "white") and _("White") or _("Black")
             status = turn .. " " .. _("to move.")

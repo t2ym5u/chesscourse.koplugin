@@ -5,6 +5,7 @@
 -- ---------------------------------------------------------------------------
 
 local Blitbuffer = require("ffi/blitbuffer")
+local Device     = require("device")
 local Font       = require("ui/font")
 local Geom       = require("ui/geometry")
 local RenderText = require("ui/rendertext")
@@ -12,6 +13,8 @@ local RenderText = require("ui/rendertext")
 local gwb            = require("grid_widget_base")
 local GridWidgetBase = gwb.GridWidgetBase
 local ChessPieces    = require("chess_pieces")
+
+local Screen = Device.screen
 
 local C_LIGHT_SQ = Blitbuffer.COLOR_GRAY_E
 local C_DARK_SQ  = Blitbuffer.COLOR_GRAY_9
@@ -38,15 +41,52 @@ local CoursBoardWidget = GridWidgetBase:extend{
 
 function CoursBoardWidget:init()
     GridWidgetBase.init(self)
-    local cell_min   = math.min(self.cell_w, self.cell_h)
-    local label_size = math.max(6, math.floor(cell_min * 0.22))
-    self.label_face  = Font:getFace("smallinfofont", label_size)
+
+    -- Rank/file labels get their own margin outside the 8x8 grid (left for
+    -- rank numbers, bottom for file letters) so they never sit on top of
+    -- piece art. The grid shrinks to fit; self.size (the widget's overall
+    -- footprint, used by the screen layout) is unchanged. Same approach as
+    -- chess.koplugin's board widget.
+    local approx_cell = self.size / 8
+    -- Font:getFace scales its size by DPI; this one is derived from pixels.
+    local label_size  = math.max(6, math.floor(approx_cell * 0.22 / (Screen:scaleBySize(1000) / 1000)))
+    self.label_face   = Font:getFace("smallinfofont", label_size)
+
+    -- The margin must fit both the widest rank digit (left) and the
+    -- tallest file letter, ascender to descender (bottom). File letters
+    -- share one baseline (label_ascent below the grid) so "g" and "b"
+    -- line up instead of each being centred on its own ink box.
+    local pad    = math.floor(approx_cell * 0.15)
+    local digits = RenderText:sizeUtf8Text(0, Screen:getWidth(), self.label_face, "8", true, false)
+    local files  = RenderText:sizeUtf8Text(0, Screen:getWidth(), self.label_face, "abcdefgh", true, false)
+    self.label_ascent = files.y_top
+    self.label_margin = math.max(digits.x, files.y_top + files.y_bottom) + pad
+
+    self.grid_size = self.size - self.label_margin
+    self.cell_w    = self.grid_size / 8
+    self.cell_h    = self.grid_size / 8
 end
 
 function CoursBoardWidget:onCellTap(v_row, v_col)
     local br = self.flipped and (9 - v_row) or v_row
     local bc = self.flipped and (9 - v_col) or v_col
     if self.onCellAction then self.onCellAction(br, bc) end
+end
+
+-- Override: the tappable grid is offset by label_margin from the widget's
+-- origin (paint_rect still covers the whole widget so refresh() repaints
+-- the labels too).
+function CoursBoardWidget:getCellFromPoint(px, py)
+    local rect = self.paint_rect
+    if not rect then return nil end
+    local local_x = px - (rect.x + self.label_margin)
+    local local_y = py - rect.y
+    if local_x < 0 or local_y < 0 or local_x > self.grid_size or local_y > self.grid_size then
+        return nil
+    end
+    local col = math.min(8, math.floor(local_x / self.cell_w) + 1)
+    local row = math.min(8, math.floor(local_y / self.cell_h) + 1)
+    return row, col
 end
 
 -- ---------------------------------------------------------------------------
@@ -61,7 +101,10 @@ function CoursBoardWidget:paintTo(bb, x, y)
     local cw    = self.cell_w
     local ch    = self.cell_h
     local flip  = self.flipped
-    local S     = self.size
+    local S     = self.grid_size
+    local margin = self.label_margin
+    local x0    = x
+    x = x + margin
 
     -- Selected square and valid targets
     local sel_r, sel_c
@@ -125,28 +168,34 @@ function CoursBoardWidget:paintTo(bb, x, y)
     for i = 0, n do
         local lw    = (i == 0 or i == n) and thick or 1
         local color = (i == 0 or i == n) and C_LINE or Blitbuffer.COLOR_GRAY_9
-        bb:paintRect(x + math.floor(i * cw), y,  lw, S, color)
-        bb:paintRect(x, y + math.floor(i * ch),  S, lw, color)
+        -- Keep the outer frame inside the grid so it doesn't bleed into
+        -- the label margin.
+        local off   = (i == n) and lw or 0
+        bb:paintRect(x + math.floor(i * cw) - off, y,  lw, S, color)
+        bb:paintRect(x, y + math.floor(i * ch) - off,  S, lw, color)
     end
 
-    -- Rank / file labels
+    -- Rank / file labels, drawn outside the grid in the reserved margin
     local file_letters = {"a","b","c","d","e","f","g","h"}
     local label_face   = self.label_face
     for i = 1, n do
+        -- Rank number: left margin, vertically centred on row i
         local board_row  = flip and i or (9 - i)
         local rank_label = tostring(board_row)
-        local lx  = x + math.floor((i - 1) * cw) + 2
-        local ly  = y + math.floor((i - 1) * ch) + 2
-        local m1  = RenderText:sizeUtf8Text(0, 20, label_face, rank_label, true, false)
-        RenderText:renderUtf8Text(bb, lx, ly + (m1.y_bottom or 0), label_face, rank_label,
-            true, false, Blitbuffer.COLOR_GRAY_5)
+        local row_top = y + math.floor((i - 1) * ch)
+        local m1      = RenderText:sizeUtf8Text(0, Screen:getWidth(), label_face, rank_label, true, false)
+        local base1   = row_top + math.floor((ch + m1.y_top - m1.y_bottom) / 2)
+        RenderText:renderUtf8Text(bb, x0 + math.floor((margin - m1.x) / 2), base1,
+            label_face, rank_label, true, false, Blitbuffer.COLOR_GRAY_5)
 
+        -- File letter: bottom margin, horizontally centred on column i
         local board_col  = flip and (9 - i) or i
         local file_label = file_letters[board_col] or ""
-        local lx2 = x + math.floor((i - 1) * cw) + math.floor(cw / 2)
-        local m2  = RenderText:sizeUtf8Text(0, 20, label_face, file_label, true, false)
-        RenderText:renderUtf8Text(bb, lx2 - math.floor(m2.x / 2),
-            y + S - 3, label_face, file_label, true, false, Blitbuffer.COLOR_GRAY_5)
+        local col_left = x + math.floor((i - 1) * cw)
+        local m2       = RenderText:sizeUtf8Text(0, Screen:getWidth(), label_face, file_label, true, false)
+        local base2    = y + S + math.floor((margin - self.label_ascent) / 2) + self.label_ascent
+        RenderText:renderUtf8Text(bb, col_left + math.floor((cw - m2.x) / 2), base2,
+            label_face, file_label, true, false, Blitbuffer.COLOR_GRAY_5)
     end
 end
 
