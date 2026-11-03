@@ -13,6 +13,7 @@ end
 
 local FrameContainer  = require("ui/widget/container/framecontainer")
 local HorizontalGroup = require("ui/widget/horizontalgroup")
+local InfoMessage     = require("ui/widget/infomessage")
 local HorizontalSpan  = require("ui/widget/horizontalspan")
 local Size            = require("ui/size")
 local UIManager       = require("ui/uimanager")
@@ -25,6 +26,17 @@ local MenuHelper       = require("menu_helper")
 local ScreenBase       = require("screen_base")
 local ChessBoard       = lrequire("board")
 local CoursBoardWidget = lrequire("board_widget")
+
+-- Lesson texts are written in French (title/desc/hint) with English
+-- twins (title_en/desc_en/hint_en): French UI gets French, any other
+-- UI language gets English.
+local function ltext(lesson, field)
+    if not lesson then return nil end
+    if _.lang and _.lang() ~= "fr" then
+        return lesson[field .. "_en"] or lesson[field]
+    end
+    return lesson[field]
+end
 
 
 -- Category display labels (keep in sync with lessons.lua)
@@ -119,7 +131,7 @@ function CoursEchecsScreen:buildLayout()
     -- Lesson header: just the puzzle's theme. Index and category are
     -- already in the status line, so repeating them here only made the
     -- title long enough to collide with the close button.
-    local header_text = lesson and lesson.title or _("Chess Course")
+    local header_text = ltext(lesson, "title") or _("Chess Course")
 
     local title_bar = self:buildTitleBar(header_text, function()
         return {
@@ -301,7 +313,7 @@ function CoursEchecsScreen:openPuzzleList(category)
             local solved_mark = ""  -- could add a checkmark later
             items[#items + 1] = {
                 id   = i,
-                text = string.format("%d. %s%s", i, lesson.title, solved_mark),
+                text = string.format("%d. %s%s", i, ltext(lesson, "title"), solved_mark),
             }
         end
     end
@@ -394,8 +406,12 @@ end
 
 function CoursEchecsScreen:onHint()
     local lesson = self.current_lesson
-    if lesson and lesson.hint then
-        self:updateStatus(_("Hint: ") .. lesson.hint)
+    local hint = ltext(lesson, "hint")
+    if hint then
+        self:updateStatus(_("Hint: ") .. hint)
+        -- The status line holds one line, which cuts most hints short:
+        -- show the whole hint in a popup too (tap to dismiss).
+        UIManager:show(InfoMessage:new{ text = _("Hint: ") .. hint })
     end
 end
 

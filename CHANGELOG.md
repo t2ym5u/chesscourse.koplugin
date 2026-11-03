@@ -6,6 +6,17 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.4.0] - 2026-11-03
+
+### Added
+- English text for all 58 lessons (titles, instructions and hints), with
+  English chess notation and terms. The French text is shown when
+  KOReader's language is French, the English text otherwise.
+
+### Fixed
+- Hint shows the whole hint in a popup; the one-line status bar cut most
+  hints short.
+
 ## [1.3.2] - 2026-11-02
 
 ### Changed

@@ -12,7 +12,8 @@ Work through guided chess exercises. Each lesson presents a board position and a
 
 ## Features
 
-- **Structured lessons** — piece movements, tactics, checkmates
+- **58 lessons** — mates in 1, 2 and 3, tactics (forks, pins, skewers, discovered attacks), endgames and openings
+- **French and English** — lesson titles and hints follow KOReader's language (French UI → French, otherwise English)
 - **Step-by-step guidance** — instructions for each exercise
 - **Progress tracking** — completed lessons are remembered
 - **Auto-save** — current lesson position saved on exit

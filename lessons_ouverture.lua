@@ -13,7 +13,9 @@ return {
     {
         id=55, category="ouverture",
         title="Gambit du roi",
+        title_en="King's Gambit",
         desc="Les blancs jouent le gambit du roi : sacrifiez un pion pour ouvrir le jeu.",
+        desc_en="White plays the King's Gambit: sacrifice a pawn to open up the game.",
         fen="rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
         solution={
             {fr=7,fc=6,tr=5,tc=6},  -- 2.f4
@@ -21,6 +23,7 @@ return {
             {fr=8,fc=7,tr=6,tc=6},  -- 3.Nf3 (attaque le pion f4)
         },
         hint="f4 ouvre la colonne f et attaque le centre noir — c'est le gambit du roi.",
+        hint_en="f4 opens the f-file and attacks Black's centre — this is the King's Gambit.",
     },
 
     -- 56. Sicilian Defense : 1.e4 c5 2.Nf3 d6 (Najdorf-like setup)
@@ -28,7 +31,9 @@ return {
     {
         id=56, category="ouverture",
         title="Défense sicilienne",
+        title_en="Sicilian Defence",
         desc="Les noirs répondent par la défense sicilienne, l'ouverture la plus jouée contre 1.e4.",
+        desc_en="Black answers with the Sicilian Defence, the most popular reply to 1.e4.",
         fen="rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
         solution={
             {fr=2,fc=3,tr=4,tc=3},  -- 1...c5
@@ -36,6 +41,7 @@ return {
             {fr=2,fc=4,tr=3,tc=4},  -- 2...d6
         },
         hint="c5 contre-attaque immédiatement la case d4 sans occuper le centre — c'est la sicilienne.",
+        hint_en="c5 immediately fights for the d4 square without occupying the centre — this is the Sicilian.",
     },
 
     -- 57. Ruy Lopez (Spanish Opening) : 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Ba4
@@ -43,7 +49,9 @@ return {
     {
         id=57, category="ouverture",
         title="Ruy Lopez",
+        title_en="Ruy Lopez",
         desc="Les blancs jouent la Ruy Lopez, l'une des ouvertures les plus classiques aux échecs.",
+        desc_en="White plays the Ruy Lopez (Spanish Opening), one of the most classical openings in chess.",
         fen="r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
         solution={
             {fr=8,fc=6,tr=4,tc=2},  -- 3.Bb5
@@ -51,6 +59,7 @@ return {
             {fr=4,fc=2,tr=5,tc=1},  -- 4.Ba4
         },
         hint="Bb5 attaque le cavalier c6, qui défend le pion e5 — c'est la Ruy Lopez.",
+        hint_en="Bb5 attacks the knight on c6, which defends the e5 pawn — this is the Ruy Lopez.",
     },
 
     -- 58. Opening trap : Scholar's Mate (punishing 3...Nf6??)
@@ -58,11 +67,14 @@ return {
     {
         id=58, category="ouverture",
         title="Piège de l'ouverture — le mat du berger",
+        title_en="Opening trap — Scholar's Mate",
         desc="Les noirs viennent de jouer Nf6?? en négligeant la menace. Trouvez le mat.",
+        desc_en="Black has just played Nf6??, overlooking the threat. Find the mate.",
         fen="r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
         solution={
             {fr=4,fc=8,tr=2,tc=6},  -- Qxf7#
         },
         hint="La dame et le fou visent tous les deux f7, qui n'est plus défendu — Qxf7#, le fameux « mat du berger ».",
+        hint_en="The queen and the bishop both aim at f7, which is no longer defended — Qxf7#, the famous Scholar's Mate.",
     },
 }
