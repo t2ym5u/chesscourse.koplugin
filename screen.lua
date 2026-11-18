@@ -110,11 +110,18 @@ function CoursEchecsScreen:loadLesson(idx)
     if not lesson then return end
     self.current_lesson   = lesson
     self.showing_solution = false
+    -- A move still scheduled (the opponent's reply, the solution playing)
+    -- belongs to the previous position: bumping the id drops it.
+    self.play_id          = (self.play_id or 0) + 1
     self.move_count       = 0
     self.solved           = false
     self.board:loadFEN(lesson.fen)
     -- Auto-flip: show the side to move at the bottom
     self._flipped = (self.board.turn == "black")
+    if self.board_widget then
+        self.board_widget.flipped   = self._flipped
+        self.board_widget.last_move = nil
+    end
 end
 
 -- ---------------------------------------------------------------------------
@@ -241,7 +248,9 @@ function CoursEchecsScreen:onReset()
 end
 
 function CoursEchecsScreen:onUndo()
+    if self.showing_solution then return end
     if self.board:undoMove() then
+        self.play_id = self.play_id + 1   -- drop a pending opponent reply
         if self.move_count > 0 then self.move_count = self.move_count - 1 end
         self.solved = false
         if self.board_widget then self.board_widget.last_move = self.board.last_move end
@@ -359,7 +368,9 @@ function CoursEchecsScreen:onCellAction(r, c)
                 self.solved = true
                 self:updateStatus(_("Well done! You found the solution."))
             elseif is_opponent_reply then
+                local id = self.play_id
                 UIManager:scheduleIn(0.5, function()
+                    if self.play_id ~= id then return end
                     self.board:makeMove(reply.fr, reply.fc, reply.tr, reply.tc)
                     self.move_count = self.move_count + 1
                     if self.board_widget then
@@ -419,13 +430,17 @@ end
 -- Show solution (animated)
 -- ---------------------------------------------------------------------------
 
+-- Replays the lesson from its start. Taps and Undo wait until another lesson
+-- (or Reset) is loaded, which also stops the replay.
 function CoursEchecsScreen:onShowSolution()
-    self.showing_solution = true
     self:loadLesson(self.lesson_idx)
     local lesson = self.current_lesson
     if not lesson or not lesson.solution then return end
+    self.showing_solution = true
+    local id = self.play_id
 
     local function playNext(idx)
+        if self.play_id ~= id then return end
         if idx > #lesson.solution then
             if self.board_widget then self.board_widget:refresh(self) end
             self:updateStatus(_("Solution shown. Tap Next to continue."))

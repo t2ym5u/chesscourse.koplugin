@@ -6,6 +6,21 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.4.5] - 2026-11-18
+
+### Fixed
+- Solution: taps and Undo now wait while the solution plays (they could
+  move pieces in the middle of it), and moving to another lesson stops it
+  instead of playing its moves on the new position.
+- A right move's scheduled reply no longer lands on the next lesson when
+  you move on quickly, nor after Undo.
+- After Flip, Solution and the other lesson changes keep the board the right
+  way up.
+
+### Changed
+- Picks up game-common 1.17.0, which now redraws the board through the
+  game screen.
+
 ## [1.4.4] - 2026-11-18
 
 ### Fixed
