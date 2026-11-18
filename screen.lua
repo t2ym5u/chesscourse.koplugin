@@ -205,7 +205,7 @@ function CoursEchecsScreen:onFlipBoard()
     self._flipped = not self._flipped
     if self.board_widget then
         self.board_widget.flipped = self._flipped
-        self.board_widget:refresh()
+        self.board_widget:refresh(self)
     end
 end
 
@@ -245,7 +245,7 @@ function CoursEchecsScreen:onUndo()
         if self.move_count > 0 then self.move_count = self.move_count - 1 end
         self.solved = false
         if self.board_widget then self.board_widget.last_move = self.board.last_move end
-        self.board_widget:refresh()
+        self.board_widget:refresh(self)
         self:updateStatus()
     end
 end
@@ -346,7 +346,7 @@ function CoursEchecsScreen:onCellAction(r, c)
     local result = self.board:tapCell(r, c)
     if self.board_widget then
         self.board_widget.last_move = self.board.last_move
-        self.board_widget:refresh()
+        self.board_widget:refresh(self)
     end
 
     if result == "move" then
@@ -364,7 +364,7 @@ function CoursEchecsScreen:onCellAction(r, c)
                     self.move_count = self.move_count + 1
                     if self.board_widget then
                         self.board_widget.last_move = self.board.last_move
-                        self.board_widget:refresh()
+                        self.board_widget:refresh(self)
                     end
                     if self.move_count >= #lesson.solution then
                         self.solved = true
@@ -380,7 +380,7 @@ function CoursEchecsScreen:onCellAction(r, c)
             self.board:undoMove()
             if self.board_widget then
                 self.board_widget.last_move = self.board.last_move
-                self.board_widget:refresh()
+                self.board_widget:refresh(self)
             end
             self:updateStatus(_("That's not the right solution. Try again."))
         end
@@ -427,7 +427,7 @@ function CoursEchecsScreen:onShowSolution()
 
     local function playNext(idx)
         if idx > #lesson.solution then
-            if self.board_widget then self.board_widget:refresh() end
+            if self.board_widget then self.board_widget:refresh(self) end
             self:updateStatus(_("Solution shown. Tap Next to continue."))
             return
         end
@@ -435,7 +435,7 @@ function CoursEchecsScreen:onShowSolution()
         self.board:makeMove(m.fr, m.fc, m.tr, m.tc)
         if self.board_widget then
             self.board_widget.last_move = self.board.last_move
-            self.board_widget:refresh()
+            self.board_widget:refresh(self)
         end
         UIManager:scheduleIn(0.8, function() playNext(idx + 1) end)
     end

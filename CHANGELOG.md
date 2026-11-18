@@ -6,6 +6,12 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.4.4] - 2026-11-18
+
+### Fixed
+- Flip turns the board on screen at once, and Solution shows every move
+  as it plays instead of only the last one.
+
 ## [1.4.3] - 2026-11-12
 
 ### Changed
