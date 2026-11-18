@@ -6,6 +6,13 @@ Reconstructed from this repository's git history: each release lists the
 feature and fix commits it carried. Version bumps, screenshot additions
 and CI syncs are left out.
 
+## [1.4.6] - 2026-11-18
+
+### Changed
+- Chess Course is now part of Chess Puzzles: its 58 lessons are the
+  *Lessons* of chesspuzzles.koplugin 1.2.0, which opens them where this
+  plugin was left. This plugin is retired and gets no further updates.
+
 ## [1.4.5] - 2026-11-18
 
 ### Fixed

@@ -1,5 +1,13 @@
 # chesscourse.koplugin
 
+> **Merged into Chess Puzzles** (2026-11-18): the 58 lessons are now the
+> **Lessons** of [chesspuzzles.koplugin](https://github.com/t2ym5u/chesspuzzles.koplugin)
+> (« Leçons » in *Problèmes d'échecs*), with the same positions, texts and
+> hints; any checkmate is accepted there too. Chess Puzzles 1.2.0 opens the
+> lessons where this plugin was left. This plugin is retired and gets no
+> further updates: install Chess Puzzles, then remove Chess Course (Plugin
+> Manager offers to).
+
 A Chess Lessons plugin for [KOReader](https://github.com/koreader/koreader).
 
 ## Screenshot
